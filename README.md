@@ -1,5 +1,9 @@
 # Foodgram
 
+Workflow status
+
+![example workflow](https://github.com/IskanderRRR/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)
+
 Адресс проекта - http://logick7.ddns.net
 
 1. Чтобы развернуть проект зайдите в папку /infra и выполните команду запуска фоновой сборки.
