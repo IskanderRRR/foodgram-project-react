@@ -43,7 +43,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = RecipePageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -54,13 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def add_favorite(self, request, recipe):
-        favorite = Favorite.objects.filter(user=request.user, recipe=recipe)
-        if favorite.exists():
-            return Response(
-                {'errors': 'Этот рецепт уже добавлен в избранные'},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        Favorite.objects.create(user=request.user, recipe=recipe)
+        Favorite.objects.get_or_create(user=request.user, recipe=recipe)
         serializer = RecipeFavoriteSerializer(recipe)
         return Response(
             serializer.data,

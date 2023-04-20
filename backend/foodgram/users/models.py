@@ -4,19 +4,19 @@ from django.db import models
 
 class User(AbstractUser):
     username = models.CharField(
-        max_length=128, blank=False,
+        max_length=150, blank=False,
         null=False, unique=True
     )
     email = models.EmailField(
-        max_length=55, unique=True,
+        max_length=254, unique=True,
         blank=False, verbose_name='Почта'
     )
     first_name = models.TextField(
-        max_length=55, blank=True,
+        max_length=150, blank=True,
         verbose_name='Имя'
     )
     last_name = models.TextField(
-        max_length=55, blank=True,
+        max_length=150, blank=True,
         verbose_name='Фамилия'
     )
     is_subscribed = models.BooleanField(default=False)

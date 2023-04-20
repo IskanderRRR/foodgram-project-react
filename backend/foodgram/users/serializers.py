@@ -64,9 +64,10 @@ class SubscribeSerializer(CustomUserSerializer):
             'is_subscribed', 'recipes', 'recipes_count'
         )
 
-    @staticmethod
-    def get_recipes_count(obj):
-        return obj.recipes.count()
+    recipes_count = serializers.IntegerField(
+        source='recipes.count',
+        read_only=True
+    )
 
     def get_recipes(self, obj):
         request = self.context.get('request')
