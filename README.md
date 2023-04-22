@@ -2,7 +2,7 @@
 
 Workflow status
 
-![example workflow](https://github.com/IskanderRRR/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)
+https://github.com/<OWNER>/<REPOSITORY>/actions/workflows/<WORKFLOW_FILE>/badge.svg
 
 Адресс проекта - http://logick7.ddns.net
 
@@ -19,5 +19,8 @@ docker-compose exec backend python manage.py collectstatic --no-input
 ```
 3. Спецификация api доступна по адресу
 ```http
-http://84.201.143.2/api/docs/redoc.html
-```
+http://localhost/
+```- главная страница сайта;
+http://localhost/admin/ - админ панель;
+http://localhost/api/ - API проекта
+http://localhost/api/docs/redoc.html - документация к API
