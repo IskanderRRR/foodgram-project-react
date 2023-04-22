@@ -2,7 +2,7 @@
 
 Workflow status
 
-https://github.com/IskanderRRR/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg
+![example workflow]https://github.com/IskanderRRR/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg
 
 Адресс проекта - http://pepegas.ddns.net
 
