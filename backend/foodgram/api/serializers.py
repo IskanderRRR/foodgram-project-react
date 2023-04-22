@@ -1,4 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
@@ -68,13 +68,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
-        try:
-            return (
-                user.is_authenticated
-                and user.shopping_cart.recipes.filter(
-                    pk__in=(obj.pk,)).exists())
-        except ObjectDoesNotExist:
-            return False
+        return (
+            user.is_authenticated
+            and user.shopping_cart.recipes.filter(
+                pk__in=(obj.pk,)).exists())
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):

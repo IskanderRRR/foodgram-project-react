@@ -134,10 +134,11 @@ class ShoppingCart(models.Model):
         related_name='shopping_cart',
         verbose_name='Пользователь',
     )
-    recipes = models.ManyToManyField(
-        'recipes.Recipe',
+    recipe = models.ForeignKey(
+        Recipe,
         related_name='shopping_cart',
         verbose_name='Рецепты',
+        on_delete=models.CASCADE
     )
 
     class Meta:
