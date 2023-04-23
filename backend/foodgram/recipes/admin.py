@@ -5,16 +5,10 @@ from . import models
 from .forms import TagForm
 
 
-class BaseAdminSettings(admin.ModelAdmin):
-    """Базовая модель админки."""
-    empty_value_display = '-пусто-'
-    list_filter = ('author', 'name', 'tags')
-
-
 class IngredientToRecipeInLine(admin.StackedInline):
     model = models.IngredientToRecipe
     min_num = 1
-    extra = 0
+    fields = ('ingredient', 'amount')
 
 
 @admin.register(models.Recipe)
