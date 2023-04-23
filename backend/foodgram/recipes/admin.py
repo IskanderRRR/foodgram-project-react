@@ -9,7 +9,7 @@ class BaseAdminSettings(admin.ModelAdmin):
     """Базовая модель админки."""
     empty_value_display = '-пусто-'
     list_filter = ('author', 'name', 'tags')
-    
+
 
 class IngredientToRecipeInLine(admin.StackedInline):
     model = models.IngredientToRecipe
