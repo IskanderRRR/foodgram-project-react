@@ -14,6 +14,7 @@ class BaseAdminSettings(admin.ModelAdmin):
 class IngredientToRecipeInLine(admin.StackedInline):
     model = models.IngredientToRecipe
     extra = 0
+    min_num = 1
 
 
 @admin.register(models.Recipe)
