@@ -128,17 +128,18 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    user = models.OneToOneField(
+
+    user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
         related_name='shopping_cart',
-        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         related_name='shopping_cart',
-        verbose_name='Рецепты',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
     )
 
     class Meta:
@@ -152,4 +153,4 @@ class ShoppingCart(models.Model):
         )
 
     def __str__(self):
-        return f'{self.user}'
+        return f'{self.user} {self.recipe}'
