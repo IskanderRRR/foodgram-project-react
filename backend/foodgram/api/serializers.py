@@ -73,6 +73,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             and user.shopping_cart.recipes.filter(
                 pk__in=(obj.pk,)).exists())
 
+    def get_ingredients(self, obj):
+        queryset = IngredientToRecipe.objects.filter(recipe=obj)
+        return IngredientToRecipeSerializer(queryset, many=True).data
+
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(

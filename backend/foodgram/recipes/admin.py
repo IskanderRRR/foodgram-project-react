@@ -5,12 +5,6 @@ from . import models
 from .forms import TagForm
 
 
-class BaseAdminSettings(admin.ModelAdmin):
-    """Базовая модель админки."""
-    empty_value_display = '-пусто-'
-    list_filter = ('author', 'name', 'tags')
-    
-
 class IngredientToRecipeInLine(admin.StackedInline):
     model = models.IngredientToRecipe
     extra = 0
@@ -82,7 +76,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.ShoppingCart)
-class CartAdmin(admin.ModelAdmin):
+class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ['recipe', 'user']
     list_filter = ('recipe', 'user')
     search_fields = ('user',)
