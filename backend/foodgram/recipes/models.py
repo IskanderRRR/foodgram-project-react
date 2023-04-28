@@ -6,7 +6,7 @@ from users.models import User
 
 
 class Tag(models.Model):
-    name = models.CharField('Название', max_length=150)
+    name = models.CharField('Название', max_length=200)
     color = models.CharField(
         'Цвет в HEX',
         max_length=7,
@@ -17,7 +17,7 @@ class Tag(models.Model):
                 message='Укажите цвет в HEX кодировке.'
             )
         ])
-    slug = models.SlugField('Слаг', max_length=100)
+    slug = models.SlugField('Слаг', max_length=200)
 
     class Meta:
         verbose_name = 'Тег'
@@ -28,8 +28,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название', max_length=150)
-    measurement_unit = models.CharField('Единица измерения', max_length=50)
+    name = models.CharField('Название', max_length=250)
+    measurement_unit = models.CharField('Единица измерения', max_length=200)
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -56,7 +56,7 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Ингредиенты'
     )
-    name = models.CharField('Название', max_length=150)
+    name = models.CharField('Название', max_length=200)
     image = models.ImageField('Изображение', upload_to='images/')
     text = models.TextField('Текст рецепта')
     cooking_time = models.PositiveIntegerField('Время приготовления')
@@ -85,14 +85,17 @@ class IngredientToRecipe(models.Model):
     amount = models.PositiveIntegerField('Количество')
 
     class Meta:
-        verbose_name = 'Количество ингредиента в рецепте'
-        verbose_name_plural = 'Количество ингредиентов в рецепте'
+        default_related_name = 'ingridients_recipe'
         constraints = (
             models.UniqueConstraint(
-                fields=('ingredient', 'recipe',),
-                name='unique ingredient recipe',
-            ),
+                fields=('recipe', 'ingredient',),
+                name='recipe_ingredient_exists'),
+            models.CheckConstraint(
+                check=models.Q(amount__gte=1),
+                name='amount_gte_1'),
         )
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
 
     def __str__(self):
         return (f'Для рецепта {self.recipe} необходимо {self.amount}'
@@ -128,29 +131,27 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
-
-    user = models.ForeignKey(
-        User,
-        related_name='shopping_cart',
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь'
-    )
+    """
+    Модель корзины.
+    """
     recipe = models.ForeignKey(
         Recipe,
-        related_name='shopping_cart',
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        default='recipe'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
     )
 
     class Meta:
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Списки покупок'
+        verbose_name = 'Рецепт в корзине'
+        verbose_name_plural = 'Корзина рецептов'
         constraints = (
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
                 name='unique_cart',
             ),
         )
-
     def __str__(self):
-        return f'{self.user} {self.recipe}'
+        return f'{self.recipe} {self.user}'

@@ -15,7 +15,7 @@ class Command(BaseCommand):
         with open(
                 'backend_static/data/ingredients.csv', 'r',
                 encoding='utf-8'
-        ) as csvfile:
+                ) as csvfile:
             dict_reader = csv.DictReader(csvfile)
             for row in dict_reader:
                 Ingredient.objects.get_or_create(

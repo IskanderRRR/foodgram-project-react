@@ -14,7 +14,7 @@ from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from .filters import IngredientSearchFilter, RecipeFilter
 from .paginations import (RecipePageNumberPagination,
                           ShoppingCartPageNumberPagination)
-from .permissions import IsAuthorOrAdminOrReadOnly
+from .permissions import OwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeFavoriteSerializer,
                           RecipeReadSerializer, RecipeWriteSerializer,
                           TagSerializer)
@@ -39,7 +39,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrAdminOrReadOnly,)
+    permission_classes = (OwnerOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = RecipePageNumberPagination
@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def add_favorite(self, request, recipe):
-        Favorite.objects.get_or_create(user=request.user, recipe=recipe)
+        Favorite.objects.get_or_create(user=request.user, recipe=recipe) 
         serializer = RecipeFavoriteSerializer(recipe)
         return Response(
             serializer.data,
@@ -89,7 +89,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         FILENAME = 'shopping_cart.txt'
         recipes = (
             request.user.shopping_cart.recipes.prefetch_related('ingredients')
-        )
+            )
         ingredients = recipes.values(INGREDIENT, UNIT).annotate(
             total=Sum('ingredients__ingredient_recipe__amount'))
         content = ''
@@ -98,7 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{ingredient[INGREDIENT]}'
                 f' ({ingredient[UNIT]})'
                 f' — {ingredient["total"]}\r\n'
-            )
+                )
         response = HttpResponse(
             content, content_type='text/plain,charset=utf8'
         )

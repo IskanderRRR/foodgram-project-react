@@ -19,9 +19,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'recipes.apps.RecipesConfig',
-    'api.apps.ApiConfig',
-    'users.apps.UsersConfig',
+    'recipes',
+    'api',
+    'users',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
@@ -40,7 +40,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'foodgram.urls'
 
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -61,15 +60,21 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='postgres'),
-        'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default='5432')
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': os.getenv('DB_NAME'),
+#        'USER': os.getenv('POSTGRES_USER'),
+#        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#        'HOST': os.getenv('DB_HOST'),
+#        'PORT': os.getenv('DB_PORT')
+#    }
+#}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,7 +130,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
-
+    
 }
 
 DJOSER = {
