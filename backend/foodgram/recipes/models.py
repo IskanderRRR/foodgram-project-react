@@ -85,21 +85,17 @@ class IngredientToRecipe(models.Model):
     amount = models.PositiveIntegerField('Количество')
 
     class Meta:
-        default_related_name = 'ingridients_recipe'
+        verbose_name = 'Количество ингредиента в рецепте'
+        verbose_name_plural = 'Количество ингредиентов в рецепте'
         constraints = (
             models.UniqueConstraint(
-                fields=('recipe', 'ingredient',),
-                name='recipe_ingredient_exists'),
-            models.CheckConstraint(
-                check=models.Q(amount__gte=1),
-                name='amount_gte_1'),
+                fields=('ingredient', 'recipe',),
+                name='unique ingredient recipe',
+            ),
         )
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецепте'
 
     def __str__(self):
-        return (f'Для рецепта {self.recipe} необходимо {self.amount}'
-                f'{self.measurement_unit} {self.ingredient}')
+        return f'{self.recipe}: {self.ingredient} – {self.amount}'
 
 
 class Favorite(models.Model):
@@ -131,9 +127,6 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    """
-    Модель корзины.
-    """
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
