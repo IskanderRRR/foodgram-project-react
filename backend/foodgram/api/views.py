@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import  F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,15 +9,18 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 from rest_framework.viewsets import GenericViewSet
+from rest_framework import status
 
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+
+from recipes.models import (Favorite, Ingredient, Recipe, ShoppingCart, Tag,
+                            IngredientToRecipe)
 from .filters import IngredientSearchFilter, RecipeFilter
 from .paginations import (RecipePageNumberPagination,
                           ShoppingCartPageNumberPagination)
 from .permissions import OwnerOrReadOnly
 from .serializers import (IngredientSerializer, RecipeFavoriteSerializer,
                           RecipeReadSerializer, RecipeWriteSerializer,
-                          TagSerializer)
+                          TagSerializer, ShoppingCartSerializer)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -84,14 +87,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        INGREDIENT = 'ingredients__name'
-        UNIT = 'ingredients__measurement_unit'
+        INGREDIENT = 'ingredient__name'
+        UNIT = 'ingredient__measurement_unit'
         FILENAME = 'shopping_cart.txt'
-        recipes = (
-            request.user.shopping_cart.recipes.prefetch_related('ingredients')
-            )
+        recipes = IngredientToRecipe.objects.filter(
+            recipe__shoppingcart__user=request.user)
         ingredients = recipes.values(INGREDIENT, UNIT).annotate(
-            total=Sum('ingredients__ingredient_recipe__amount'))
+            total=Sum('ingredient__ingredient_recipe__amount'))
         content = ''
         for ingredient in ingredients:
             content += (
@@ -112,37 +114,30 @@ class ShoppingCartViewSet(GenericViewSet):
     serializer_class = RecipeFavoriteSerializer
     queryset = ShoppingCart.objects.all()
     http_method_names = ('post', 'delete',)
+    
+    @staticmethod
+    def post_method_for_actions(request, pk, serializers):
+        data = {'user': request.user.id, 'recipe': pk}
+        serializer = serializers(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @staticmethod
+    def delete_method_for_actions(request, pk, model):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        model_instance = get_object_or_404(model, user=user, recipe=recipe)
+        model_instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def add_to_shopping_cart(self, request, recipe, shopping_cart):
-        if shopping_cart.recipes.filter(pk__in=(recipe.pk,)).exists():
-            return Response(
-                {'errors': 'Рецепт уже добавлен в корзину'},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        shopping_cart.recipes.add(recipe)
-        serializer = self.get_serializer(recipe)
-        return Response(
-            serializer.data,
-            status=HTTP_201_CREATED,
+    @action(detail=True, methods=['post'])
+    def shopping_cart(self, request, pk):
+        return self.post_method_for_actions(
+            request, pk, serializers=ShoppingCartSerializer
         )
-
-    def remove_from_shopping_cart(self, request, recipe, shopping_cart):
-        if not shopping_cart.recipes.filter(pk__in=(recipe.pk,)).exists():
-            return Response(
-                {'errors': 'Рецепта в корзине нет'},
-                status=HTTP_400_BAD_REQUEST,
-            )
-        shopping_cart.recipes.remove(recipe)
-        return Response(
-            status=HTTP_204_NO_CONTENT,
-        )
-
-    @action(methods=('post', 'delete',), detail=True)
-    def shopping_cart(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        shopping_cart = (
-            ShoppingCart.objects.get_or_create(user=request.user)[0]
-        )
-        if request.method == 'POST':
-            return self.add_to_shopping_cart(request, recipe, shopping_cart)
-        return self.remove_from_shopping_cart(request, recipe, shopping_cart)
+    
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk):
+        return self.delete_method_for_actions(
+            request=request, pk=pk, model=ShoppingCart)

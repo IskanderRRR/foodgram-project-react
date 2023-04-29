@@ -130,7 +130,6 @@ class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        default='recipe'
     )
     user = models.ForeignKey(
         User,
